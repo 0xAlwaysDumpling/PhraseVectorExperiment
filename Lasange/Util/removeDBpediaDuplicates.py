@@ -21,9 +21,9 @@ input_file = sys.argv[1]
 out_file = sys.argv[2]
 delimit = sys.argv[3] #if 0 then space if >0 then tab
 if int(delimit) == 0:
-    delimiter = ' '
+	delimiter = ' '
 else:
-    delimiter = '\t'
+	delimiter = '\t'
 
 
 with open(out_file, "w") as w:
