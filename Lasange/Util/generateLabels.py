@@ -34,3 +34,6 @@ with open(vocab_file, "w") as w:
                 if '\n' in line: v.write(line)
                 else: v.write(line+'\n')
             lineCount+=1
+
+
+v.close()
