@@ -17,7 +17,7 @@ lineCount = 0
 with open(out_file, "w") as w:
     with open(input_file, "r") as f:
         for line in f.readlines():
-            if lineCount -- int(skip):
+            if lineCount == int(skip):
                 line = line.split(' ')
                 word = line[0]
                 words = word.split('_')
