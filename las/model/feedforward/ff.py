@@ -10,14 +10,10 @@ from theano import tensor as T
 import lasagne
 import sys,os,inspect
 base_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../base/")))
-cos_subfolder = os.path.realpath(os.path.abspath(os.path.join(os.path.split(inspect.getfile( inspect.currentframe() ))[0],"../../loss/cosine")))
 if base_subfolder not in sys.path:
      sys.path.insert(0, base_subfolder)
-if cos_subfolder not in sys.path:
-	sys.path.insert(0,cos_subfolder)
 
 import base as base
-import cosinesimilarity as l
 
 
 #
@@ -27,71 +23,6 @@ import cosinesimilarity as l
 
 
 class ff(base.Base):
-	def run(self,Sampling, X_train_path, Y_train_path, eval_path):
-		self.load_dataset(Sampling,X_train_path, Y_train_path, eval_path)
-		self.build_and_train_model(self.N_Hidden)
-		self.write_best_model()
-		self.eval()
-
-
-	def build_and_train_model(self,n_hidden):
-		print('Building Model')
-
-		input_phrase = T.imatrix('train_inputmatrix')
-		labels = T.imatrix('trainphrase_matrix')
-
-		network = self.define_layers(input_phrase,labels,n_hidden)
-
-		print("Defining loss")
-		#Prediction or loss
-		prediction = []
-		prediction.append(T.clip(lasagne.layers.get_output(network[0]),1.0e-7,1.0-1.0e-7))
-		prediction.append(T.clip(lasagne.layers.get_output(network[1]),1.0e-7,1.0-1.0e-7))
-
-		loss = l.define_loss(prediction[0],prediction[1])
-		self.model = network
-		#define params
-		params = lasagne.layers.get_all_params(network)
-		updates = lasagne.updates.adadelta(loss,params)
-
-		#run test
-
-		train_fn = theano.function([input_phrase,labels],[loss, prediction[0], prediction[1]],updates=updates,allow_input_downcast=True)
-
-		print("Model and params defined now training")
-		epoch = 0
-		for epoch in range(self.end_epoch):
-			train_loss = 0
-			train_pred = []
-			start_time = time.time()
-			loss, predicted, phrase = train_fn(self.train_inputmatrix,self.trainphrase_matrix)
-			print('Training Loss: ' + str(loss) + ' Train Epoch ' + str(epoch))
-			self.save_best(loss,predicted,network)
-
-		#eval_fn = theano.function([input_phrase,labels],[loss, prediction[0], prediction[1]],allow_input_downcast=True)
-		# e_loss, e_predicted, e_phrase = eval_fn(self.eval_matrix,self.evalphrase_matrix)
-		# print('Evaluating current loss is ' +str(e_loss))
-
-
-
-	def eval(self):
-		print('Evaluating '  + str(self.eval_vocab_size))
-		input_phrase = T.imatrix('eval_inputmatrix')
-		labels = T.imatrix('evalphrase_matrix')
-		network = self.define_layers(input_phrase, labels)
-		params = self.best_params
-		prediction = []
-		prediction.append(T.clip(lasagne.layers.get_output(network[0]),1.0e-7,1.0-1.0e-7))
-		prediction.append(T.clip(lasagne.layers.get_output(network[1]),1.0e-7,1.0-1.0e-7))
-		loss = l(prediction[0],prediction[1])
-
-		eval_fn = theano.function([input_phrase,labels],[loss, prediction[0], prediction[1]],updates=None,allow_input_downcast=True)
-		e_loss, e_predicted, e_phrase = eval_fn(self.eval_inputmatrix,self.evalphrase_matrix)
-		print('Evaluating current loss is ' +str(e_loss))
-		self.write_eval(e_predicted)
-
-
-
 	#define layers
 	def define_layers(self, input_indices, phrase_indices, N_H = 200):
 		print('Defining layers')
