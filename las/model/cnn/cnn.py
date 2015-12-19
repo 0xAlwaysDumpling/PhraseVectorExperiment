@@ -11,11 +11,11 @@ import base as base
 
 
 class cnn(base.Base):
-	def define_layers(self, input_indices, phrase_indices):
+	def define_layers(self, input_indices, phrase_indices,N_HU = 200, N_H = 2):
 		print('Defining layers')
 		MAX_LENGTH=12
 
-		input_layer = lasagne.layers.InputLayer(shape=(1,MAX_LENGTH), input_var=input_indices)
+		input_layer = lasagne.layers.InputLayer(shape=(None,MAX_LENGTH), input_var=input_indices)
 		embedding_layer = lasagne.layers.EmbeddingLayer(input_layer, input_size=self.vocab_size, output_size=200,W=self.all_embedding)
 		embedding_layer.params[embedding_layer.W].remove('trainable')
 
@@ -25,10 +25,9 @@ class cnn(base.Base):
 		conv_layer = lasagne.layers.Conv1DLayer(embedding_layer,MAX_LENGTH,3,pad='same')
 
 
+		pooling_layer = lasagne.layers.MaxPool1DLayer(conv_layer,1)
 
-
-
-		output_layer = ()
+		output_layer = lasagne.layers.DenseLayer(pooling_layer,int(N_HU),nonlinearity=lasagne.nonlinearities.sigmoid)
 		#define phrase output embeddings
 		phrase_layer = lasagne.layers.InputLayer(shape=(1,1), input_var=phrase_indices)
 		embedding_layer_phrase = lasagne.layers.EmbeddingLayer(phrase_layer, input_size=self.trainphrase_vocab_size, output_size=200, W=self.trainevalphrase_embeddings)
